@@ -1,4 +1,4 @@
-#  Stronghold Crusader – Scenario Generator
+#  Stronghold Crusader – Scenario Generator PL/EN
 
 A desktop app for randomizing game scenarios in **Stronghold Crusader**. Rolls a map, player count, game mode, AI balance and team alliances — step by step.
 
