@@ -69,19 +69,21 @@ jobs:
         run: |
           [System.IO.File]::WriteAllText("MANIFEST.MF", "Main-Class: Main`n", [System.Text.Encoding]::ASCII)
           jar cfm StrongholdCrusader.jar MANIFEST.MF -C build\classes .
+          New-Item -ItemType Directory -Force -Path input | Out-Null
+          Copy-Item StrongholdCrusader.jar input\
 
       - name: Build EXE with jpackage
-        shell: cmd
-        run: >
-          jpackage
-          --type app-image
-          --name "StrongholdCrusader"
-          --input .
-          --main-jar StrongholdCrusader.jar
-          --main-class Main
-          --icon res\twierdza.ico
-          --app-version 1.0.0
-          --dest dist
+        shell: pwsh
+        run: |
+          jpackage `
+            --type app-image `
+            --name "StrongholdCrusader" `
+            --input input `
+            --main-jar StrongholdCrusader.jar `
+            --main-class Main `
+            --icon res\twierdza.ico `
+            --app-version 1.0.0 `
+            --dest dist
 
       - name: Zip the app folder
         shell: pwsh
