@@ -1,27 +1,27 @@
-# ⚔ Stronghold Crusader – Scenario Generator
+#  Stronghold Crusader – Scenario Generator
 
-Aplikacja do losowania scenariuszy do gry **Stronghold Crusader**. Losuje mapę, liczbę graczy, tryb gry, balans i układ drużyn.
+A desktop app for randomizing game scenarios in **Stronghold Crusader**. Rolls a map, player count, game mode, AI balance and team alliances — step by step.
 
-![Build](https://github.com/TWOJ_USERNAME/TWOJ_REPO/actions/workflows/build.yml/badge.svg)
-
----
-
-## Pobieranie / Download
-
-Przejdź do zakładki [**Releases**](../../releases) i pobierz najnowszą wersję:
-
-| Plik | Opis |
-|------|------|
-| `StrongholdCrusader-windows.zip` | Wersja Windows — rozpakuj i uruchom `.exe` |
-| `StrongholdCrusader.jar` | Wersja JAR — wymaga Java 17+ |
+![Build](https://github.com/Refirebro/Stronghold-Crusader-Scenario-Generator/actions/workflows/build.yml/badge.svg)
 
 ---
 
-## Uruchamianie / Running
+## Download
 
-**Windows EXE** (brak wymagań — Java wbudowana):
+Go to [**Releases**](../../releases) and grab the latest version:
+
+| File | Description |
+|------|-------------|
+| `StrongholdCrusader-windows.zip` | Windows — unzip and run `.exe` (no Java needed) |
+| `StrongholdCrusader.jar` | Any OS — requires Java 17+ |
+
+---
+
+## Running
+
+**Windows EXE** (Java bundled, no install needed):
 ```
-Rozpakuj zip → uruchom StrongholdCrusader\StrongholdCrusader.exe
+Unzip → run StrongholdCrusader\StrongholdCrusader.exe
 ```
 
 **JAR (Windows / Linux / Mac)**:
@@ -31,9 +31,9 @@ java -jar StrongholdCrusader.jar
 
 ---
 
-## Kompilacja ze źródeł / Build from source
+## Build from source
 
-Wymagania: **JDK 17+**
+Requirements: **JDK 17+**
 
 **Windows:**
 ```
@@ -42,37 +42,36 @@ build_and_run.bat
 
 **Linux / Mac:**
 ```bash
-chmod +x build_and_run.sh
-./build_and_run.sh
+chmod +x build_and_run.sh && ./build_and_run.sh
 ```
 
 ---
 
-## Funkcje / Features
+## Features
 
-- 🗺 Losowanie mapy z pełną listą map Stronghold Crusader
-- 👥 Losowanie liczby graczy (dopasowane do mapy)
-- ⚔ Losowanie trybu gry (Normalna / Krucjata / Potyczka)
-- ⚖ Losowanie balansu AI (1–5)
-- 🤝 Losowanie układu drużyn / sojuszy
-- 🇵🇱 🇬🇧 Obsługa języka polskiego i angielskiego
+- 🗺 Random map from all 75 official Stronghold Crusader maps
+- 👥 Random player count (matched to map capacity)
+- ⚔ Random game mode (Normal / Crusade / Skirmish)
+- ⚖ Random AI balance (1–5)
+- 🤝 Random team / alliance layout
+- PL/EN Full Polish / English language support
 
 ---
 
-## Struktura projektu
+## Project structure
 
 ```
 src/
-  Main.java             # punkt wejścia
-  ScenarioGUI.java      # główne okno GUI
-  ScenarioGenerator.java# logika losowania
-  MapLoader.java        # lista map PL/EN
-  GameMap.java          # model mapy
-  Lang.java             # tłumaczenia
+  Main.java               entry point
+  ScenarioGUI.java        main GUI window
+  ScenarioGenerator.java  randomization logic
+  MapLoader.java          map list PL/EN
+  GameMap.java            map model
+  Lang.java               translations
 res/
-  pl.png                # flaga PL
-  uk.png                # flaga UK
-  twierdza.ico          # ikona aplikacji
+  pl.png                  Polish flag
+  uk.png                  UK flag
+  twierdza.ico            app icon
 .github/workflows/
-  build.yml             # GitHub Actions: buduje JAR + EXE
+  build.yml               GitHub Actions: builds JAR + EXE automatically
 ```

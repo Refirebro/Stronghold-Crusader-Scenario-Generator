@@ -5,11 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:   # pozwala uruchomić ręcznie z GitHuba
+  workflow_dispatch:
 
 jobs:
 
-  # ── JAR (działa na każdym systemie) ─────────────────────────────────────
+  # ── JAR ─────────────────────────────────────────────────────────────────
   build-jar:
     name: Build JAR
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
 
       - name: Package JAR
         run: |
-          echo "Main-Class: Main" > MANIFEST.MF
+          printf "Main-Class: Main\n" > MANIFEST.MF
           jar cfm StrongholdCrusader.jar MANIFEST.MF -C build/classes .
 
       - name: Upload JAR artifact
@@ -41,7 +41,7 @@ jobs:
           name: StrongholdCrusader-jar
           path: StrongholdCrusader.jar
 
-  # ── EXE (Windows, jpackage) ──────────────────────────────────────────────
+  # ── EXE (Windows) ────────────────────────────────────────────────────────
   build-exe:
     name: Build EXE (Windows)
     runs-on: windows-latest
@@ -55,19 +55,23 @@ jobs:
           distribution: 'temurin'
 
       - name: Compile
+        shell: cmd
         run: |
           mkdir build\classes
           javac -encoding UTF-8 -d build\classes src\*.java
 
       - name: Copy resources
+        shell: cmd
         run: copy res\* build\classes\
 
       - name: Package JAR
+        shell: pwsh
         run: |
-          echo Main-Class: Main > MANIFEST.MF
+          [System.IO.File]::WriteAllText("MANIFEST.MF", "Main-Class: Main`n", [System.Text.Encoding]::ASCII)
           jar cfm StrongholdCrusader.jar MANIFEST.MF -C build\classes .
 
       - name: Build EXE with jpackage
+        shell: cmd
         run: >
           jpackage
           --type app-image
@@ -80,6 +84,7 @@ jobs:
           --dest dist
 
       - name: Zip the app folder
+        shell: pwsh
         run: Compress-Archive -Path dist\StrongholdCrusader -DestinationPath StrongholdCrusader-windows.zip
 
       - name: Upload EXE artifact
@@ -88,7 +93,7 @@ jobs:
           name: StrongholdCrusader-windows
           path: StrongholdCrusader-windows.zip
 
-  # ── Release: tworzy release na GitHubie gdy wypchniesz tag v* ────────────
+  # ── Release (tylko przy tagu v*) ─────────────────────────────────────────
   release:
     name: Create Release
     needs: [ build-jar, build-exe ]
@@ -116,10 +121,10 @@ jobs:
           body: |
             ## Stronghold Crusader – Scenario Randomizer
 
-            ### Pobieranie / Download
-            - **Windows**: pobierz `StrongholdCrusader-windows.zip`, rozpakuj i uruchom `StrongholdCrusader.exe`
-            - **JAR (każdy system)**: pobierz `StrongholdCrusader.jar`, uruchom `java -jar StrongholdCrusader.jar`
+            ### Download
+            - **Windows**: download `StrongholdCrusader-windows.zip`, unzip and run `StrongholdCrusader.exe`
+            - **JAR (any OS)**: download `StrongholdCrusader.jar`, run `java -jar StrongholdCrusader.jar`
 
-            ### Wymagania / Requirements
-            - Windows EXE: brak (Java wbudowana)
+            ### Requirements
+            - Windows EXE: none (Java bundled)
             - JAR: Java 17+
