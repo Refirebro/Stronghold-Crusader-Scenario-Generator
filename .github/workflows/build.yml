@@ -1,0 +1,132 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+
+  # ── JAR ─────────────────────────────────────────────────────────────────
+  build-jar:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Compile
+        run: |
+          mkdir -p build/classes
+          javac -encoding UTF-8 -d build/classes src/*.java
+
+      - name: Copy resources
+        run: cp res/* build/classes/
+
+      - name: Package JAR
+        run: |
+          printf "Main-Class: Main\n" > MANIFEST.MF
+          jar cfm StrongholdCrusader.jar MANIFEST.MF -C build/classes .
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StrongholdCrusader-jar
+          path: StrongholdCrusader.jar
+
+  # ── EXE (Windows) ────────────────────────────────────────────────────────
+  build-exe:
+    name: Build EXE (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Compile
+        shell: cmd
+        run: |
+          mkdir build\classes
+          javac -encoding UTF-8 -d build\classes src\*.java
+
+      - name: Copy resources
+        shell: cmd
+        run: copy res\* build\classes\
+
+      - name: Package JAR
+        shell: pwsh
+        run: |
+          [System.IO.File]::WriteAllText("MANIFEST.MF", "Main-Class: Main`n", [System.Text.Encoding]::ASCII)
+          jar cfm StrongholdCrusader.jar MANIFEST.MF -C build\classes .
+          New-Item -ItemType Directory -Force -Path input | Out-Null
+          Copy-Item StrongholdCrusader.jar input\
+
+      - name: Build EXE with jpackage
+        shell: pwsh
+        run: |
+          jpackage `
+            --type app-image `
+            --name "StrongholdCrusader" `
+            --input input `
+            --main-jar StrongholdCrusader.jar `
+            --main-class Main `
+            --icon res\twierdza.ico `
+            --app-version 1.0.0 `
+            --dest dist
+
+      - name: Zip the app folder
+        shell: pwsh
+        run: Compress-Archive -Path dist\StrongholdCrusader -DestinationPath StrongholdCrusader-windows.zip
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StrongholdCrusader-windows
+          path: StrongholdCrusader-windows.zip
+
+  # ── Release (tylko przy tagu v*) ─────────────────────────────────────────
+  release:
+    name: Create Release
+    needs: [ build-jar, build-exe ]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: StrongholdCrusader-jar
+
+      - name: Download EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: StrongholdCrusader-windows
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            StrongholdCrusader.jar
+            StrongholdCrusader-windows.zip
+          body: |
+            ## Stronghold Crusader – Scenario Randomizer
+
+            ### Download
+            - **Windows**: download `StrongholdCrusader-windows.zip`, unzip and run `StrongholdCrusader.exe`
+            - **JAR (any OS)**: download `StrongholdCrusader.jar`, run `java -jar StrongholdCrusader.jar`
+
+            ### Requirements
+            - Windows EXE: none (Java bundled)
+            - JAR: Java 17+
